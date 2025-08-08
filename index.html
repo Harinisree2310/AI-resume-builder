@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI/ML Resume Builder</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom scrollbar for input fields */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 8px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #e2e8f0; /* bg-gray-200 */
+            border-radius: 10px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #9ca3af; /* bg-gray-400 */
+            border-radius: 10px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+            cursor: pointer;
+        }
+
+        /* Resume Preview Styling */
+        #resume-preview {
+            background-color: #ffffff;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            min-height: 80vh;
+            line-height: 1.6;
+        }
+        #resume-preview h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1f2937; /* text-gray-900 */
+        }
+        #resume-preview h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937; /* text-gray-900 */
+            border-bottom: 2px solid #e5e7eb; /* border-gray-200 */
+            padding-bottom: 0.5rem;
+        }
+        #resume-preview h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+            color: #374151; /* text-gray-700 */
+        }
+        #resume-preview p {
+            margin-bottom: 0.25rem;
+            color: #4b5563; /* text-gray-600 */
+        }
+        #resume-preview ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #4b5563; /* text-gray-600 */
+        }
+        #resume-preview ul li {
+            margin-bottom: 0.25rem;
+        }
+        #resume-preview .section-content {
+            margin-bottom: 1rem;
+        }
+        .contact-info span {
+            margin-right: 1rem;
+            display: inline-block;
+        }
+        .generate-button {
+            background-color: #5a67d8; /* indigo-700 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 0.5rem;
+        }
+        .generate-button:hover {
+            background-color: #434eac; /* darker indigo */
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-xl shadow-lg flex flex-col lg:flex-row gap-8">
+        <!-- Input Form (Left Panel) -->
+        <div class="flex-1 p-6 bg-gray-50 rounded-lg shadow-inner overflow-y-auto" style="max-height: 90vh;">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">Resume Details</h2>
+
+            <!-- Personal Information -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="fullName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="tel" id="phone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()">
+                    </div>
+                    <div>
+                        <label for="linkedin" class="block text-sm font-medium text-gray-700">LinkedIn Profile</label>
+                        <input type="url" id="linkedin" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()">
+                    </div>
+                    <div>
+                        <label for="github" class="block text-sm font-medium text-gray-700">GitHub Profile</label>
+                        <input type="url" id="github" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="summary" class="block text-sm font-medium text-gray-700">Summary / Objective</label>
+                        <textarea id="summary" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()"></textarea>
+                        <button type="button" class="generate-button" onclick="generateText('summary')">Generate with AI <span id="summary-spinner" class="loading-spinner hidden"></span></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Education -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Education</h3>
+                <div id="educationContainer">
+                    <!-- Education entries will be added here by JS -->
+                </div>
+                <button type="button" onclick="addEducation()" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out">Add Education</button>
+            </section>
+
+            <!-- Technical Skills -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Technical Skills</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="progLanguages" class="block text-sm font-medium text-gray-700">Programming Languages (comma-separated)</label>
+                        <input type="text" id="progLanguages" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Python, Java, C++">
+                    </div>
+                    <div>
+                        <label for="librariesFrameworks" class="block text-sm font-medium text-gray-700">Libraries & Frameworks (comma-separated)</label>
+                        <input type="text" id="librariesFrameworks" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., TensorFlow, PyTorch, scikit-learn, Pandas">
+                    </div>
+                    <div>
+                        <label for="databases" class="block text-sm font-medium text-gray-700">Databases (comma-separated)</label>
+                        <input type="text" id="databases" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., PostgreSQL, MongoDB, SQL">
+                    </div>
+                    <div>
+                        <label for="cloudPlatforms" class="block text-sm font-medium text-gray-700">Cloud Platforms (comma-separated)</label>
+                        <input type="text" id="cloudPlatforms" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Azure, AWS, GCP">
+                    </div>
+                    <div>
+                        <label for="versionControl" class="block text-sm font-medium text-gray-700">Version Control (comma-separated)</label>
+                        <input type="text" id="versionControl" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Git, GitHub">
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI/ML Concepts & Knowledge -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">AI/ML Concepts & Knowledge</h3>
+                <textarea id="aiMlConcepts" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Supervised/Unsupervised Learning, Deep Learning, NLP, Computer Vision, Responsible AI"></textarea>
+                <button type="button" class="generate-button" onclick="generateText('aiMlConcepts')">Generate with AI <span id="aiMlConcepts-spinner" class="loading-spinner hidden"></span></button>
+            </section>
+
+            <!-- Projects -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Projects</h3>
+                <div id="projectsContainer">
+                    <!-- Project entries will be added here by JS -->
+                </div>
+                <button type="button" onclick="addProject()" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out">Add Project</button>
+            </section>
+
+            <!-- Internships & Work Experience -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Internships & Work Experience</h3>
+                <div id="experienceContainer">
+                    <!-- Experience entries will be added here by JS -->
+                </div>
+                <button type="button" onclick="addExperience()" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out">Add Experience</button>
+            </section>
+
+            <!-- Certifications -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Certifications</h3>
+                <div id="certificationsContainer">
+                    <!-- Certification entries will be added here by JS -->
+                </div>
+                <button type="button" onclick="addCertification()" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-md transition-all duration-200 ease-in-out">Add Certification</button>
+            </section>
+
+            <!-- Soft Skills -->
+            <section class="mb-6 bg-white p-4 rounded-lg shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Soft Skills</h3>
+                <textarea id="softSkills" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Problem-Solving, Critical Thinking, Communication, Teamwork, Adaptability"></textarea>
+                <button type="button" class="generate-button" onclick="generateText('softSkills')">Generate with AI <span id="softSkills-spinner" class="loading-spinner hidden"></span></button>
+            </section>
+
+        </div>
+
+        <!-- Resume Preview (Right Panel) -->
+        <div class="flex-1 p-6 bg-white rounded-lg shadow-lg flex flex-col items-center relative">
+            <div id="resume-preview" class="w-full h-full overflow-y-auto">
+                <!-- Resume content will be generated here -->
+                <p class="text-center text-gray-500">Your resume preview will appear here as you type.</p>
+            </div>
+            <button type="button" id="downloadPdf" class="mt-6 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-lg transition-all duration-200 ease-in-out font-bold text-lg">Download Resume (PDF)</button>
+        </div>
+    </div>
+
+    <!-- html2pdf.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Add initial education, project, experience, and certification sections
+            addEducation();
+            addProject();
+            addExperience();
+            addCertification();
+            updatePreview(); // Initial render of the empty resume
+        });
+
+        // Helper function to create a text input
+        function createTextInput(id, placeholder, label) {
+            return `
+                <div>
+                    <label for="${id}" class="block text-sm font-medium text-gray-700">${label}</label>
+                    <input type="text" id="${id}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="${placeholder}">
+                </div>
+            `;
+        }
+
+        // Helper function to create a textarea with optional AI button
+        function createTextarea(id, placeholder, label, rows = 3, hasAIButton = false) {
+            let buttonHtml = '';
+            if (hasAIButton) {
+                buttonHtml = `<button type="button" class="generate-button" onclick="generateText('${id}')">Generate with AI <span id="${id}-spinner" class="loading-spinner hidden"></span></button>`;
+            }
+            return `
+                <div class="md:col-span-2">
+                    <label for="${id}" class="block text-sm font-medium text-gray-700">${label}</label>
+                    <textarea id="${id}" rows="${rows}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="${placeholder}"></textarea>
+                    ${buttonHtml}
+                </div>
+            `;
+        }
+
+        let educationCount = 0;
+        function addEducation() {
+            educationCount++;
+            const container = document.getElementById('educationContainer');
+            const newEducationDiv = document.createElement('div');
+            newEducationDiv.id = `education-${educationCount}`;
+            newEducationDiv.classList.add('education-entry', 'mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md', 'bg-gray-50', 'relative');
+            newEducationDiv.innerHTML = `
+                <button type="button" onclick="removeEntry('education-${educationCount}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h4 class="text-md font-semibold text-gray-800 mb-3 border-b pb-2">Education #${educationCount}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${createTextInput(`degree-${educationCount}`, 'e.g., Bachelor of Engineering /Bachelor of Arts', 'Degree')}
+                    ${createTextInput(`university-${educationCount}`, 'e.g., Anna University', 'University/Institution')}
+                    ${createTextInput(`eduLocation-${educationCount}`, 'e.g., Chennai, India', 'Location')}
+                    ${createTextInput(`graduationDate-${educationCount}`, 'e.g., May 2026', 'Graduation Date')}
+                    ${createTextInput(`gpa-${educationCount}`, 'e.g., 8.5/10', 'GPA/Percentage')}
+                </div>
+            `;
+            container.appendChild(newEducationDiv);
+            updatePreview();
+        }
+
+        let projectCount = 0;
+        function addProject() {
+            projectCount++;
+            const container = document.getElementById('projectsContainer');
+            const newProjectDiv = document.createElement('div');
+            newProjectDiv.id = `project-${projectCount}`;
+            newProjectDiv.classList.add('project-entry', 'mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md', 'bg-gray-50', 'relative');
+            newProjectDiv.innerHTML = `
+                <button type="button" onclick="removeEntry('project-${projectCount}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h4 class="text-md font-semibold text-gray-800 mb-3 border-b pb-2">Project #${projectCount}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${createTextInput(`projectTitle-${projectCount}`, 'e.g., AI-Powered Churn Prediction Model', 'Project Title')}
+                    ${createTextInput(`projectLink-${projectCount}`, 'e.g., https://github.com/your-repo', 'Project Link (Optional)')}
+                    ${createTextarea(`projectDescription-${projectCount}`, 'Key features, technologies used, your role, and quantifiable impact (e.g., improved accuracy by 5%)', 'Description', 4, true)}
+                </div>
+            `;
+            container.appendChild(newProjectDiv);
+            updatePreview();
+        }
+
+        let experienceCount = 0;
+        function addExperience() {
+            experienceCount++;
+            const container = document.getElementById('experienceContainer');
+            const newExperienceDiv = document.createElement('div');
+            newExperienceDiv.id = `experience-${experienceCount}`;
+            newExperienceDiv.classList.add('experience-entry', 'mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md', 'bg-gray-50', 'relative');
+            newExperienceDiv.innerHTML = `
+                <button type="button" onclick="removeEntry('experience-${experienceCount}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h4 class="text-md font-semibold text-gray-800 mb-3 border-b pb-2">Experience #${experienceCount}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${createTextInput(`jobTitle-${experienceCount}`, 'e.g., AI/ML Intern', 'Job Title')}
+                    ${createTextInput(`company-${experienceCount}`, 'e.g., Tech Innovations Inc.', 'Company')}
+                    ${createTextInput(`expLocation-${experienceCount}`, 'e.g., Bengaluru, India', 'Location')}
+                    <div>
+                        <label for="startDate-${experienceCount}" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="text" id="startDate-${experienceCount}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., May 2024">
+                    </div>
+                    <div>
+                        <label for="endDate-${experienceCount}" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="text" id="endDate-${experienceCount}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" oninput="updatePreview()" placeholder="e.g., Aug 2024 or Present">
+                    </div>
+                    ${createTextarea(`expDescription-${experienceCount}`, 'Key responsibilities, projects, technologies used, and quantifiable achievements (e.g., deployed model that reduced cost by 10%)', 'Description', 4, true)}
+                </div>
+            `;
+            container.appendChild(newExperienceDiv);
+            updatePreview();
+        }
+
+        let certificationCount = 0;
+        function addCertification() {
+            certificationCount++;
+            const container = document.getElementById('certificationsContainer');
+            const newCertificationDiv = document.createElement('div');
+            newCertificationDiv.id = `certification-${certificationCount}`;
+            newCertificationDiv.classList.add('certification-entry', 'mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-md', 'bg-gray-50', 'relative');
+            newCertificationDiv.innerHTML = `
+                <button type="button" onclick="removeEntry('certification-${certificationCount}')" class="absolute top-2 right-2 text-red-500 hover:text-red-700 focus:outline-none">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h4 class="text-md font-semibold text-gray-800 mb-3 border-b pb-2">Certification #${certificationCount}</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${createTextInput(`certName-${certificationCount}`, 'e.g., Microsoft Certified: Azure AI Fundamentals (AI-900)', 'Certification Name')}
+                    ${createTextInput(`certIssuer-${certificationCount}`, 'e.g., Microsoft', 'Issuing Body')}
+                    ${createTextInput(`certDate-${certificationCount}`, 'e.g., March 2025', 'Date Issued')}
+                    ${createTextInput(`certLink-${certificationCount}`, 'e.g., https://learn.microsoft.com/en-us/credentials/certification/azure-ai-fundamentals/', 'Credential Link (Optional)')}
+                </div>
+            `;
+            container.appendChild(newCertificationDiv);
+            updatePreview();
+        }
+
+        // Function to remove a dynamically added entry
+        function removeEntry(id) {
+            const elementToRemove = document.getElementById(id);
+            if (elementToRemove) {
+                elementToRemove.remove();
+                updatePreview(); // Update preview after removal
+            }
+        }
+
+        // Function to split comma-separated string into list items
+        function formatList(text) {
+            if (!text) return '';
+            // Split by comma, period, or newline to handle various input formats
+            return `<ul>` + text.split(/[,.\n]/).filter(item => item.trim() !== '').map(item => `<li>${item.trim()}</li>`).join('') + `</ul>`;
+        }
+
+        // Function to update the resume preview
+        function updatePreview() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const linkedin = document.getElementById('linkedin').value;
+            const github = document.getElementById('github').value;
+            const summary = document.getElementById('summary').value;
+
+            const progLanguages = document.getElementById('progLanguages').value;
+            const librariesFrameworks = document.getElementById('librariesFrameworks').value;
+            const databases = document.getElementById('databases').value;
+            const cloudPlatforms = document.getElementById('cloudPlatforms').value;
+            const versionControl = document.getElementById('versionControl').value;
+            const aiMlConcepts = document.getElementById('aiMlConcepts').value;
+            const softSkills = document.getElementById('softSkills').value;
+
+            let resumeHtml = '';
+
+            if (fullName) {
+                resumeHtml += `<h1 class="text-center">${fullName}</h1>`;
+            }
+            if (email || phone || linkedin || github) {
+                resumeHtml += `<p class="text-center text-gray-600 mb-4 contact-info">`;
+                if (email) resumeHtml += `<span class="mr-4">Email: ${email}</span>`;
+                if (phone) resumeHtml += `<span class="mr-4">Phone: ${phone}</span>`;
+                if (linkedin) resumeHtml += `<span class="mr-4">LinkedIn: <a href="${linkedin}" target="_blank" class="text-blue-600 hover:underline">${linkedin.replace(/(^\w+:|^)\/\//, '').replace(/\/$/, '')}</a></span>`;
+                if (github) resumeHtml += `<span class="mr-4">GitHub: <a href="${github}" target="_blank" class="text-blue-600 hover:underline">${github.replace(/(^\w+:|^)\/\//, '').replace(/\/$/, '')}</a></span>`;
+                resumeHtml += `</p>`;
+            }
+            if (summary) {
+                resumeHtml += `<h2>Summary</h2><div class="section-content"><p>${summary}</p></div>`;
+            }
+
+            // Education Section
+            const educationEntries = [];
+            for (let i = 1; i <= educationCount; i++) {
+                const degree = document.getElementById(`degree-${i}`)?.value;
+                const university = document.getElementById(`university-${i}`)?.value;
+                const eduLocation = document.getElementById(`eduLocation-${i}`)?.value;
+                const graduationDate = document.getElementById(`graduationDate-${i}`)?.value;
+                const gpa = document.getElementById(`gpa-${i}`)?.value;
+
+                if (degree && university) {
+                    educationEntries.push({ degree, university, eduLocation, graduationDate, gpa });
+                }
+            }
+            if (educationEntries.length > 0) {
+                resumeHtml += `<h2>Education</h2><div class="section-content">`;
+                educationEntries.forEach(edu => {
+                    resumeHtml += `<h3>${edu.degree || ''}</h3>`;
+                    resumeHtml += `<p>${edu.university || ''} ${edu.eduLocation ? `| ${edu.eduLocation}` : ''} ${edu.graduationDate ? `| ${edu.graduationDate}` : ''}</p>`;
+                    if (edu.gpa) {
+                        resumeHtml += `<p>GPA: ${edu.gpa}</p>`;
+                    }
+                });
+                resumeHtml += `</div>`;
+            }
+
+            // Technical Skills Section
+            if (progLanguages || librariesFrameworks || databases || cloudPlatforms || versionControl) {
+                resumeHtml += `<h2>Technical Skills</h2><div class="section-content">`;
+                if (progLanguages) resumeHtml += `<p><strong>Programming Languages:</strong> ${progLanguages}</p>`;
+                if (librariesFrameworks) resumeHtml += `<p><strong>Libraries & Frameworks:</strong> ${librariesFrameworks}</p>`;
+                if (databases) resumeHtml += `<p><strong>Databases:</strong> ${databases}</p>`;
+                if (cloudPlatforms) resumeHtml += `<p><strong>Cloud Platforms:</strong> ${cloudPlatforms}</p>`;
+                if (versionControl) resumeHtml += `<p><strong>Version Control:</strong> ${versionControl}</p>`;
+                resumeHtml += `</div>`;
+            }
+
+            // AI/ML Concepts & Knowledge
+            if (aiMlConcepts) {
+                resumeHtml += `<h2>AI/ML Concepts & Knowledge</h2><div class="section-content"><p>${aiMlConcepts}</p></div>`;
+            }
+
+            // Projects Section
+            const projectEntries = [];
+            for (let i = 1; i <= projectCount; i++) {
+                const projectTitle = document.getElementById(`projectTitle-${i}`)?.value;
+                const projectLink = document.getElementById(`projectLink-${i}`)?.value;
+                const projectDescription = document.getElementById(`projectDescription-${i}`)?.value;
+
+                if (projectTitle && projectDescription) {
+                    projectEntries.push({ projectTitle, projectLink, projectDescription });
+                }
+            }
+            if (projectEntries.length > 0) {
+                resumeHtml += `<h2>Projects</h2><div class="section-content">`;
+                projectEntries.forEach(proj => {
+                    resumeHtml += `<h3>${proj.projectTitle || ''} ${proj.projectLink ? `<span class="text-sm font-normal"><a href="${proj.projectLink}" target="_blank" class="text-blue-600 hover:underline">Link</a></span>` : ''}</h3>`;
+                    resumeHtml += formatList(proj.projectDescription);
+                });
+                resumeHtml += `</div>`;
+            }
+
+            // Experience Section
+            const experienceEntries = [];
+            for (let i = 1; i <= experienceCount; i++) {
+                const jobTitle = document.getElementById(`jobTitle-${i}`)?.value;
+                const company = document.getElementById(`company-${i}`)?.value;
+                const expLocation = document.getElementById(`expLocation-${i}`)?.value;
+                const startDate = document.getElementById(`startDate-${i}`)?.value;
+                const endDate = document.getElementById(`endDate-${i}`)?.value;
+                const expDescription = document.getElementById(`expDescription-${i}`)?.value;
+
+                if (jobTitle && company && expDescription) {
+                    experienceEntries.push({ jobTitle, company, expLocation, startDate, endDate, expDescription });
+                }
+            }
+            if (experienceEntries.length > 0) {
+                resumeHtml += `<h2>Experience</h2><div class="section-content">`;
+                experienceEntries.forEach(exp => {
+                    resumeHtml += `<h3>${exp.jobTitle || ''} at ${exp.company || ''}</h3>`;
+                    resumeHtml += `<p>${exp.expLocation || ''} | ${exp.startDate || ''} - ${exp.endDate || ''}</p>`;
+                    resumeHtml += formatList(exp.expDescription);
+                });
+                resumeHtml += `</div>`;
+            }
+
+            // Certifications Section
+            const certificationEntries = [];
+            for (let i = 1; i <= certificationCount; i++) {
+                const certName = document.getElementById(`certName-${i}`)?.value;
+                const certIssuer = document.getElementById(`certIssuer-${i}`)?.value;
+                const certDate = document.getElementById(`certDate-${i}`)?.value;
+                const certLink = document.getElementById(`certLink-${i}`)?.value;
+
+                if (certName && certIssuer) {
+                    certificationEntries.push({ certName, certIssuer, certDate, certLink });
+                }
+            }
+            if (certificationEntries.length > 0) {
+                resumeHtml += `<h2>Certifications</h2><div class="section-content">`;
+                certificationEntries.forEach(cert => {
+                    resumeHtml += `<p>${cert.certName || ''} by ${cert.certIssuer || ''} ${cert.certDate ? `| ${cert.certDate}` : ''} ${cert.certLink ? `<span class="text-sm font-normal"><a href="${cert.certLink}" target="_blank" class="text-blue-600 hover:underline">Link</a></span>` : ''}</p>`;
+                });
+                resumeHtml += `</div>`;
+            }
+
+            // Soft Skills Section
+            if (softSkills) {
+                resumeHtml += `<h2>Soft Skills</h2><div class="section-content"><p>${softSkills}</p></div>`;
+            }
+
+
+            const previewArea = document.getElementById('resume-preview');
+            previewArea.innerHTML = resumeHtml || '<p class="text-center text-gray-500">Your resume preview will appear here as you type.</p>';
+        }
+
+        // --- AI Generation Logic ---
+        async function generateText(targetId) {
+            const spinner = document.getElementById(`${targetId}-spinner`);
+            const targetElement = document.getElementById(targetId);
+            const originalPlaceholder = targetElement.placeholder;
+
+            spinner.classList.remove('hidden');
+            targetElement.placeholder = 'Generating... Please wait.';
+            targetElement.disabled = true;
+
+            let prompt = "";
+            let context = "";
+
+            // Gather context based on targetId
+            const fullName = document.getElementById('fullName').value;
+            const progLanguages = document.getElementById('progLanguages').value;
+            const librariesFrameworks = document.getElementById('librariesFrameworks').value;
+            const aiMlConcepts = document.getElementById('aiMlConcepts').value;
+            const softSkills = document.getElementById('softSkills').value;
+
+            // Specific prompts for each section
+            if (targetId === 'summary') {
+                context = `Name: ${fullName || 'A BE CSE-AIML student'}.`;
+                if (progLanguages) context += ` Programming Languages: ${progLanguages}.`;
+                if (librariesFrameworks) context += ` Libraries/Frameworks: ${librariesFrameworks}.`;
+                if (aiMlConcepts) context += ` AI/ML Concepts: ${aiMlConcepts}.`;
+                if (softSkills) context += ` Soft Skills: ${softSkills}.`;
+
+                prompt = `Write a concise and impactful professional summary (around 3-4 sentences) for a BE CSE-AIML student, highlighting their expertise in AI/ML. ${context} Focus on technical proficiency, problem-solving abilities, and career aspirations.`;
+            } else if (targetId === 'aiMlConcepts') {
+                prompt = `List key AI/ML concepts and knowledge crucial for a BE CSE-AIML student. Include foundational areas like supervised/unsupervised learning, deep learning architectures (CNNs, RNNs), NLP, computer vision, and ethical AI principles. Provide as a comma-separated list.`;
+            } else if (targetId === 'softSkills') {
+                prompt = `List essential soft skills for an AI/ML professional. Focus on skills relevant to collaboration, problem-solving, communication, and adaptability in a rapidly evolving tech environment. Provide as a comma-separated list.`;
+            } else if (targetId.startsWith('projectDescription-')) {
+                const projectIndex = targetId.split('-')[1];
+                const projectTitle = document.getElementById(`projectTitle-${projectIndex}`).value;
+                const projectLink = document.getElementById(`projectLink-${projectIndex}`).value;
+
+                context = `Project Title: ${projectTitle}.`;
+                if (projectLink) context += ` Project Link: ${projectLink}.`;
+                if (progLanguages) context += ` Technologies: ${progLanguages}, ${librariesFrameworks}.`;
+
+                prompt = `Write a concise 2-3 bullet point description for an AI/ML project. Highlight key features, technologies used, your role, and any potential quantifiable impact (e.g., improved accuracy, reduced time). ${context}`;
+            } else if (targetId.startsWith('expDescription-')) {
+                const expIndex = targetId.split('-')[1];
+                const jobTitle = document.getElementById(`jobTitle-${expIndex}`).value;
+                const company = document.getElementById(`company-${expIndex}`).value;
+                const startDate = document.getElementById(`startDate-${expIndex}`).value;
+                const endDate = document.getElementById(`endDate-${expIndex}`).value;
+
+                context = `Job Title: ${jobTitle} at ${company}. Dates: ${startDate} - ${endDate}.`;
+                if (progLanguages) context += ` Technologies often used: ${progLanguages}, ${librariesFrameworks}.`;
+
+                prompt = `Write 2-3 concise bullet points describing responsibilities and achievements for an AI/ML internship or work experience. Focus on projects, technologies used, and quantifiable results. ${context}`;
+            }
+
+            try {
+                const generatedText = await callGeminiAPI(prompt);
+                targetElement.value = generatedText.trim();
+                updatePreview();
+            } catch (error) {
+                console.error("Error generating text:", error);
+                targetElement.value = "Failed to generate. Please try again or fill manually.";
+            } finally {
+                spinner.classList.add('hidden');
+                targetElement.placeholder = originalPlaceholder;
+                targetElement.disabled = false;
+            }
+        }
+
+        // Exponential backoff for API calls
+        async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Canvas will automatically provide this at runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && i < retries - 1) { // Too Many Requests
+                            await new Promise(res => setTimeout(res, delay));
+                            delay *= 2; // Exponential backoff
+                            continue;
+                        }
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        throw new Error("Unexpected API response structure or empty content.");
+                    }
+                } catch (error) {
+                    if (i === retries - 1) {
+                        throw error; // Re-throw if it's the last retry
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2; // Exponential backoff
+                }
+            }
+            throw new Error("Failed to call Gemini API after multiple retries.");
+        }
+
+        // Function to download the resume as PDF
+        document.getElementById('downloadPdf').addEventListener('click', () => {
+            const element = document.getElementById('resume-preview');
+            const opt = {
+                margin:       0.5,
+                filename:     'my-ai-ml-resume.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, logging: false, dpi: 192, letterRendering: true }, // Set logging to false for cleaner console
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+
+    </script>
+</body>
+</html>
