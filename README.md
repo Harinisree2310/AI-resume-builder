@@ -43,8 +43,8 @@ To run this application on your local machine:
 
 Clone the Repository (or download index.html):
 
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/Harinisree2310/AI-resume-builder.git
+cd AI-resume-builder
 
 (Replace your-username and your-repo-name with your actual GitHub details.)
 
